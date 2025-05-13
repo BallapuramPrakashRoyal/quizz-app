@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kavya's Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 600px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            position: relative;
+        }
+        
+        .welcome-screen {
+            text-align: center;
+        }
+        
+        .welcome-screen h1 {
+            color: #3a4b5c;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+        }
+        
+        .welcome-screen p {
+            color: #5e6d7e;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        
+        .quiz-screen {
+            display: none;
+        }
+        
+        .quiz-screen h2 {
+            color: #3a4b5c;
+            margin-bottom: 20px;
+            font-size: 1.6rem;
+        }
+        
+        .quiz-screen .question {
+            font-size: 1.3rem;
+            margin-bottom: 25px;
+            color: #3a4b5c;
+            line-height: 1.5;
+        }
+        
+        .options {
+            display: grid;
+            grid-gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .option {
+            padding: 15px 20px;
+            border: 2px solid #dfe4ea;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .option:hover {
+            background-color: #f1f5f9;
+            border-color: #c8d0da;
+        }
+        
+        .correct {
+            background-color: #d4edda !important;
+            border-color: #c3e6cb !important;
+            color: #155724 !important;
+        }
+        
+        .incorrect {
+            background-color: #f8d7da !important;
+            border-color: #f5c6cb !important;
+            color: #721c24 !important;
+        }
+        
+        .feedback {
+            position: absolute;
+            right: 15px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .show-feedback {
+            opacity: 1;
+        }
+        
+        .btn {
+            background-color: #4a69bd;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .btn:hover {
+            background-color: #3c55a5;
+        }
+        
+        .btn:disabled {
+            background-color: #a5b1d6;
+            cursor: not-allowed;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .progress {
+            color: #5e6d7e;
+            font-weight: 500;
+        }
+        
+        .result-screen {
+            display: none;
+            text-align: center;
+        }
+        
+        .result-screen h2 {
+            color: #3a4b5c;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        
+        .score {
+            font-size: 5rem;
+            font-weight: bold;
+            color: #4a69bd;
+            margin: 30px 0;
+        }
+        
+        .message {
+            color: #5e6d7e;
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+        
+        .restart-btn {
+            background-color: #4a69bd;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .restart-btn:hover {
+            background-color: #3c55a5;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+                padding: 20px;
+            }
+            
+            .welcome-screen h1 {
+                font-size: 2rem;
+            }
+            
+            .quiz-screen h2 {
+                font-size: 1.4rem;
+            }
+            
+            .quiz-screen .question {
+                font-size: 1.1rem;
+            }
+            
+            .option {
+                padding: 12px 15px;
+                font-size: 1rem;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                font-size: 1rem;
+            }
+            
+            .score {
+                font-size: 4rem;
+            }
+            
+            .message {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Welcome Screen -->
+        <div class="welcome-screen" id="welcome-screen">
+            <h1>Welcome to Kavya's Quiz</h1>
+            <p>Test your knowledge with this fun quiz! There are 10 questions in total. Ready to get started?</p>
+            <button class="btn" id="start-btn">Start Quiz</button>
+        </div>
+        
+        <!-- Quiz Screen -->
+        <div class="quiz-screen" id="quiz-screen">
+            <h2>Kavya's Quiz</h2>
+            <div class="question" id="question">Question text goes here?</div>
+            <div class="options" id="options">
+                <!-- Options will be inserted here dynamically -->
+            </div>
+            <div class="controls">
+                <div class="progress" id="progress">Question 1 of 10</div>
+                <button class="btn" id="next-btn" disabled>Next Question</button>
+            </div>
+        </div>
+        
+        <!-- Result Screen -->
+        <div class="result-screen" id="result-screen">
+            <h2>Quiz Completed!</h2>
+            <div class="score" id="final-score">7/10</div>
+            <div class="message" id="result-message">Great job! You have good knowledge!</div>
+            <button class="restart-btn" id="restart-btn">Take Quiz Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Quiz questions data
+        const quizData = [
+            {
+                question: "What is the capital of France?",
+                options: ["London", "Berlin", "Paris", "Madrid"],
+                correct: 2 // Index of the correct option (Paris)
+            },
+            {
+                question: "Which planet is known as the Red Planet?",
+                options: ["Earth", "Mars", "Jupiter", "Venus"],
+                correct: 1 // Mars
+            },
+            {
+                question: "What is the largest ocean on Earth?",
+                options: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean", "Pacific Ocean"],
+                correct: 3 // Pacific Ocean
+            },
+            {
+                question: "Who painted the Mona Lisa?",
+                options: ["Vincent van Gogh", "Pablo Picasso", "Leonardo da Vinci", "Michelangelo"],
+                correct: 2 // Leonardo da Vinci
+            },
+            {
+                question: "Which element has the chemical symbol 'O'?",
+                options: ["Gold", "Oxygen", "Osmium", "Oganesson"],
+                correct: 1 // Oxygen
+            },
+            {
+                question: "What is the largest mammal in the world?",
+                options: ["African Elephant", "Blue Whale", "Giraffe", "Polar Bear"],
+                correct: 1 // Blue Whale
+            },
+            {
+                question: "In which year did World War II end?",
+                options: ["1943", "1945", "1947", "1950"],
+                correct: 1 // 1945
+            },
+            {
+                question: "Who wrote 'Romeo and Juliet'?",
+                options: ["Charles Dickens", "William Shakespeare", "Jane Austen", "Mark Twain"],
+                correct: 1 // William Shakespeare
+            },
+            {
+                question: "What is the currency of Japan?",
+                options: ["Yuan", "Won", "Yen", "Ringgit"],
+                correct: 2 // Yen
+            },
+            {
+                question: "Which country is home to the Great Barrier Reef?",
+                options: ["Brazil", "Australia", "Indonesia", "Philippines"],
+                correct: 1 // Australia
+            }
+        ];
+
+        // DOM Elements
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const startBtn = document.getElementById('start-btn');
+        const questionElement = document.getElementById('question');
+        const optionsContainer = document.getElementById('options');
+        const progressText = document.getElementById('progress');
+        const nextBtn = document.getElementById('next-btn');
+        const finalScoreElement = document.getElementById('final-score');
+        const resultMessageElement = document.getElementById('result-message');
+        const restartBtn = document.getElementById('restart-btn');
+
+        // Quiz State
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+
+        // Start Quiz
+        startBtn.addEventListener('click', startQuiz);
+
+        function startQuiz() {
+            welcomeScreen.style.display = 'none';
+            quizScreen.style.display = 'block';
+            currentQuestion = 0;
+            score = 0;
+            loadQuestion();
+        }
+
+        // Load Question
+        function loadQuestion() {
+            answered = false;
+            nextBtn.disabled = true;
+            
+            const current = quizData[currentQuestion];
+            questionElement.innerText = current.question;
+            
+            // Clear previous options
+            optionsContainer.innerHTML = '';
+            
+            // Create new options
+            current.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.classList.add('option');
+                optionElement.innerText = option;
+                
+                // Add feedback span
+                const feedback = document.createElement('span');
+                feedback.classList.add('feedback');
+                feedback.innerText = "Correct!";
+                optionElement.appendChild(feedback);
+                
+                optionElement.addEventListener('click', () => selectOption(optionElement, index, current.correct));
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            // Update progress
+            progressText.innerText = `Question ${currentQuestion + 1} of ${quizData.length}`;
+        }
+
+        // Select Option
+        function selectOption(optionElement, selectedIndex, correctIndex) {
+            if (answered) return; // Prevent multiple answers
+            
+            answered = true;
+            nextBtn.disabled = false;
+            
+            const options = document.querySelectorAll('.option');
+            const selectedFeedback = optionElement.querySelector('.feedback');
+            
+            if (selectedIndex === correctIndex) {
+                // Correct answer
+                optionElement.classList.add('correct');
+                selectedFeedback.innerText = "Correct!";
+                selectedFeedback.classList.add('show-feedback');
+                score++;
+            } else {
+                // Wrong answer
+                optionElement.classList.add('incorrect');
+                selectedFeedback.innerText = "Wrong!";
+                selectedFeedback.classList.add('show-feedback');
+                
+                // Highlight correct answer
+                const correctOption = options[correctIndex];
+                correctOption.classList.add('correct');
+                const correctFeedback = correctOption.querySelector('.feedback');
+                correctFeedback.innerText = "Correct!";
+                correctFeedback.classList.add('show-feedback');
+            }
+            
+            // Disable all options
+            options.forEach(option => {
+                option.style.pointerEvents = 'none';
+            });
+        }
+
+        // Next Question
+        nextBtn.addEventListener('click', () => {
+            currentQuestion++;
+            
+            if (currentQuestion < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        });
+
+        // Show Results
+        function showResults() {
+            quizScreen.style.display = 'none';
+            resultScreen.style.display = 'block';
+            
+            finalScoreElement.innerText = `${score}/${quizData.length}`;
+            
+            // Set appropriate message based on score
+            if (score === quizData.length) {
+                resultMessageElement.innerText = "Perfect score! You're a quiz master!";
+            } else if (score >= quizData.length * 0.7) {
+                resultMessageElement.innerText = "Great job! You have excellent knowledge!";
+            } else if (score >= quizData.length * 0.5) {
+                resultMessageElement.innerText = "Good effort! You're doing well!";
+            } else {
+                resultMessageElement.innerText = "Keep learning! You'll do better next time!";
+            }
+        }
+
+        // Restart Quiz
+        restartBtn.addEventListener('click', () => {
+            resultScreen.style.display = 'none';
+            welcomeScreen.style.display = 'block';
+        });
+    </script>
+</body>
+</html>
